@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import permissions,generics,mixins
 from Users.permissions import is_Founder
-from .serialization import OrganizatoinSerializers,BlogCreateSerialization,commentsCreateSerialization,BlogReadSerialization
+from .serializers import BlogSerializer
 from Users.permissions import is_Founder,Founder_Set_Up,BlogCreater,SameOrganizatoin,followPermissions,unfollowPermissions,BlogReadPermission,BlogUpdatePermissions,CommentsUpdatePermission,BlogDeletePermissions,employeeDeletePermission,delete_pin_permissions
 from .consumers import organization
 from .models import Blog,BlogNotification,FollowUnNotification,Tag,OrganizationFollower,OrganizationFollowing,BlogLike,BlogRead,Comments,Streak,PinBlog
@@ -14,13 +14,28 @@ from Users.models import NewUser,UserFollowing
 from django.shortcuts import get_object_or_404
 from django.db.models import Q,F,Count
 from django.utils import timezone
+from rest_framework.viewsets import ModelViewSet
+from .service import blog_create_permission
 # Create your views here.
 
 
 
 
 
+class BlogViewSet(ModelViewSet):
+    serializer_class=BlogSerializer
+    authentication_classes=[JWTAuthentication]
 
+
+
+    def get_permissions(self):
+        return super().get_permissions()
+    
+    def create(self, request, *args, **kwargs):
+        blog_create_permission(self,request,*args,**kwargs)
+    
+    def perform_create(self, serializer):
+        
 
 class CreateBlog(generics.CreateAPIView):
     queryset=Organization.objects.all()

@@ -18,7 +18,7 @@ class OrganizatoinSerializers(serializers.ModelSerializer):
 
 
 
-class BlogCreateSerialization(serializers.ModelSerializer):
+class BlogSerializer(serializers.ModelSerializer):
     tag = serializers.ListField(
         child=serializers.CharField(),
         write_only=True
@@ -33,8 +33,6 @@ class BlogCreateSerialization(serializers.ModelSerializer):
     def to_representation(self, instance):
 
         data = super().to_representation(instance)
-        a=instance.tag.all()
-        print(a)
         data['tag'] = [
             tag.name for tag in instance.tag.all()
         ]
