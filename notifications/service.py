@@ -1,6 +1,8 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from .models import FollowNotification
+import logging
+logger = logging.getLogger(__name__)
 
 def user_room(id):
     return f'user_{id}'
@@ -18,71 +20,107 @@ def create_follow_notification(content,obj,current_user):
 def send_notification_user_follow(current_user,obj):
     room=user_room(current_user.id)
     channel_layer=get_channel_layer()
-    async_to_sync(channel_layer.group_send)(room,{
-                'type':'follower_employee',
-                'name':obj.Name,
+    try:
+        async_to_sync(channel_layer.group_send)(room,{
+                    'type':'follower_employee',
+                    'name':obj.Name,
 
-            })
+                })
+    except Exception:
+        logger.exception('failed to send the notification.')
     
 
 def send_comment(name,comment):
     channel_layer=get_channel_layer()
     room=notification_room(name)
-    async_to_sync(channel_layer.group_send)(room,{
-        'type':'comments',
-        'id':comment.id,
-        'content':comment.text,
-        'owner_id':comment.owner_id,
-        'blog_id':comment.blog_id
-        
-    })
+    try:
+        async_to_sync(channel_layer.group_send)(room,{
+            'type':'comments',
+            'id':comment.id,
+            'content':comment.text,
+            'owner_id':comment.owner_id,
+            'blog_id':comment.blog_id
+            
+        })
+    except Exception:
+        logger.exception('failed to send the comment.')
 
 def send_comment_delete(id,name):
     channel_layer=get_channel_layer()
     room=notification_room(name)
-    async_to_sync(channel_layer.group_send)(room,{
-        'type':'comments_delete',
-        'id':id,
+    try:
+        async_to_sync(channel_layer.group_send)(room,{
+            'type':'comments_delete',
+            'id':id,
 
-        
-    })
+            
+        })
+    except Exception:
+        logger.exception('failed to send the notification.')
 
 
 def send_notification_founder(obj,content):
     room2=user_room(obj.id)
     channel_layer=get_channel_layer()
-    async_to_sync(channel_layer.group_send)(room2,{
-        'type':'follower_employee_to_founder',
-        'content':content,
+    try:
+        async_to_sync(channel_layer.group_send)(room2,{
+            'type':'follower_employee_to_founder',
+            'content':content,
 
 
-    })
+        })
+    except Exception:
+        logger.exception('failed to send the notification.')
 
 
 def send_notification_founder_follow(current_organization,obj):
     channel_layer=get_channel_layer()
     room=organization_room(current_organization.Name)
-    async_to_sync(channel_layer.group_send)(room,{
-        'type':'follower_founder',
-        'name':obj.Name,
+    try:
+        async_to_sync(channel_layer.group_send)(room,{
+            'type':'follower_founder',
+            'name':obj.Name,
 
-    })
+        })
+    except Exception:
+        logger.exception('failed to send the notification.')
 
 
 def send_notification_user_unfollow(current_user,obj):
     room=user_room(current_user.id)
     channel_layer=get_channel_layer()
-    async_to_sync(channel_layer.group_send)(room,{
-                'type':'unfollower_employee',
-                'name':obj.Name,
+    try:
+        async_to_sync(channel_layer.group_send)(room,{
+                    'type':'unfollower_employee',
+                    'name':obj.Name,
 
-            })
+                })
+    except Exception:
+        logger.exception('failed to send the notification.')
 
 def send_notification_founder_unfollow(current_organization,obj):
     channel_layer=get_channel_layer()
     room=organization_room(current_organization.Name)
-    async_to_sync(channel_layer.group_send)(room,{
-        'type':'unfollower_founder',
-        'name':obj.Name,
+    try:
+        async_to_sync(channel_layer.group_send)(room,{
+            'type':'unfollower_founder',
+            'name':obj.Name,
 
-    })
+        })
+    except Exception:
+        logger.exception('failed to send the notification.')
+
+def send_blog(self,blog):
+    channel_layer=get_channel_layer()
+    room=f'notification_{self.obj.Name}'
+    try:
+        async_to_sync(channel_layer.group_send)(room,{
+            'type':'blog_notification',
+            'id':blog.id,
+            'content':blog.content,
+            'created_by':blog.created_by.user_name,
+            'created_at':str(blog.created_at),
+            'user_name':self.request.user.user_name
+        })
+    except Exception:
+        logger.exception('failed to send the blog.')

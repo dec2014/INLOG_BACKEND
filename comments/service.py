@@ -2,13 +2,14 @@ from .models import Comments
 from rest_framework.permissions import IsAuthenticated
 from Users.permissions import employee_verification
 from BLOG.service import get_blog__organization
+from BLOG.permissions import Blog_access_permission
 from follow.service import get_organization_following_list,get_user_following_list
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from streak.service import get_streak,streak_logic
 from notifications.service import send_comment,send_comment_delete
 from rest_framework.response import Response
-from .permissions import Comments_update_permission,comment_access_permission
+from .permissions import Comments_update_permission
 def get_all_comments():
     return Comments.objects.all()
 
@@ -27,15 +28,15 @@ def comment_permissions(self):
 
     'list': [IsAuthenticated,employee_verification],
 
-    'retrieve': [IsAuthenticated,employee_verification,comment_access_permission],
+    'retrieve': [IsAuthenticated,employee_verification,Blog_access_permission],
 
     'create': [IsAuthenticated,employee_verification,],
 
-    'update': [IsAuthenticated,employee_verification,comment_access_permission,Comments_update_permission],
+    'update': [IsAuthenticated,employee_verification,Blog_access_permission,Comments_update_permission],
 
-    'partial_update': [IsAuthenticated,employee_verification,comment_access_permission,Comments_update_permission],
+    'partial_update': [IsAuthenticated,employee_verification,Blog_access_permission,Comments_update_permission],
 
-    'destroy': [IsAuthenticated,employee_verification,comment_access_permission,Comments_update_permission],
+    'destroy': [IsAuthenticated,employee_verification,Blog_access_permission,Comments_update_permission],
     }
     permissions=permission_map.get(self.action,[IsAuthenticated])
     return [permission() for permission in permissions]
@@ -45,8 +46,8 @@ def comment_create_permission(self,request,*args,**kwargs):
     id=kwargs.get('pk')
     self.obj=get_blog__organization(id)
     if self.obj.organization.type=='Pvt':
-        following=get_user_following_list(request.user)
-        organizationfollowing=get_organization_following_list(request.user)
+        following=get_user_following_list(request.user.id)
+        organizationfollowing=get_organization_following_list(request.user.organization_id)
         if request.user.organization==self.obj.organization or self.obj.organization.Name in following or self.obj.organization.Name in organizationfollowing :
             return super().create(request, *args, **kwargs)
         else :
@@ -61,8 +62,8 @@ def comment_get_list_permission(self,request,*args,**kwargs):
     id=kwargs.get('pk')
     self.obj=get_blog__organization(id)
     if self.obj.organization.type=='Pvt':
-        following=get_user_following_list(request.user)
-        organizationfollowing=get_organization_following_list(request.user)
+        following=get_user_following_list(request.user.id)
+        organizationfollowing=get_organization_following_list(request.user.organization_id)
         if request.user.organization==self.obj.organization or self.obj.organization.Name in following or self.obj.organization.Name in organizationfollowing :
             return super().list(request, *args, **kwargs)
         else :

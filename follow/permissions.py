@@ -5,7 +5,7 @@ from .service import get_user_following_list,get_organization_following_list
 class followPermissions(BasePermission):
     def has_object_permission(self, request, view, obj):
         user=request.user
-        following=get_user_following_list(user)
+        following=get_user_following_list(user.id)
 
         if obj.Name in following:
             self.message('you are already following the organization.')
@@ -22,7 +22,7 @@ class followPermissions(BasePermission):
 
         elif user.role=='E':
 
-            organizationfollowing=get_organization_following_list(user)
+            organizationfollowing=get_organization_following_list(user.organization_id)
             if obj.Name in organizationfollowing:
                 self.message(f'the organization you belong to ,already follows the organization {obj.Name}')
                 return False
@@ -34,7 +34,7 @@ class followPermissions(BasePermission):
 class unfollowPermissions(BasePermission):
     def has_object_permission(self, request, view, obj):
         user=request.user
-        following=get_user_following_list(user)
+        following=get_user_following_list(user.id)
 
         if obj.Name not in following:
             self.message('you are not following the organization already.')

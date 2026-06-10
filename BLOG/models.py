@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Q,F
 from organization.models import Organization
-
+from tag.models import Tag
 
 from datetime import datetime,time
 
@@ -9,8 +9,6 @@ from datetime import datetime,time
 from organization.models import Organization
 
 
-class Tag(models.Model):
-    name=models.CharField(max_length=255)
 
 class Blog(models.Model):
     title=models.CharField(max_length=255)
@@ -36,10 +34,5 @@ class BlogLike(models.Model):
 
 
 
-class BlogRead(models.Model):
-    blog=models.ForeignKey(Blog,on_delete=models.CASCADE,null=True,blank=True,related_name='blog_read')
-    read_by=models.ForeignKey('LOGIN.NewUser',on_delete=models.CASCADE,null=True,blank=True)
-    class Meta:
-        unique_together=['blog','read_by']
 
 

@@ -20,3 +20,9 @@ class organization_update_permission(BasePermission):
             return False
         return True
         
+class belong_to_same_organization(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if obj.id!=request.user.organization_id:
+            self.message='you cannot create the blog for this organization as you do not belong to it.'
+            return False
+        return True

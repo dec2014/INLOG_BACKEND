@@ -7,11 +7,11 @@ from rest_framework.response import Response
 from notifications.service import create_follow_notification,send_notification_founder,send_notification_founder_follow,send_notification_founder_unfollow,send_notification_user_follow,send_notification_user_unfollow
 from Users.service import current_user_logined
 
-def get_organization_following_list(user):
-    return OrganizationFollowing.objects.select_related('following').filter(organization_id=user.organization_id).values_list('following__Name',flat=True)
+def get_organization_following_list(id):
+    return OrganizationFollowing.objects.select_related('following').filter(organization_id=id).values_list('following__Name',flat=True)
 
-def get_user_following_list(user):
-    return UserFollowing.objects.select_related('following').filter(user_id=user.id).values_list('following__Name',flat=True)
+def get_user_following_list(id):
+    return UserFollowing.objects.select_related('following').filter(user_id=id).values_list('following__Name',flat=True)
 
 
 
