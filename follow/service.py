@@ -13,7 +13,11 @@ def get_organization_following_list(id):
 def get_user_following_list(id):
     return UserFollowing.objects.select_related('following').filter(user_id=id).values_list('following__Name',flat=True)
 
+def organization_following_list_exists(organization_id,following_id):
+    return OrganizationFollowing.objects.select_related('following').filter(organization_id=organization_id,following_id=following_id).exists()
 
+def user_following_list_exists(user_id,organization_id):
+    return UserFollowing.objects.select_related('following').filter(user_id=user_id,organization_id=organization_id).exists()
 
 def create_follow(obj,current_user):
     try:

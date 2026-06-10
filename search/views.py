@@ -15,5 +15,5 @@ class SearchingBlogs(generics.ListAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated,employee_verification]
     def get_queryset(self):
-        filter_blog(self)
+        return filter_blog(self)
    

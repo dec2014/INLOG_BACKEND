@@ -25,12 +25,7 @@ class PinBlog(models.Model):
     blog=models.OneToOneField(Blog,on_delete=models.CASCADE,related_name='pinnedblog')
 
 
-class BlogLike(models.Model):
-    blog=models.ForeignKey(Blog,on_delete=models.CASCADE,related_name='blog_like')
-    like=models.BooleanField(default=True)
-    like_user=models.ForeignKey('LOGIN.NewUser',on_delete=models.CASCADE)
-    class Meta:
-        unique_together=['blog','like_user']
+
 
 
 
