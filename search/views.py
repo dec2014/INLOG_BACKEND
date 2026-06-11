@@ -4,7 +4,6 @@ from BLOG.models import Blog
 from BLOG.serializers import BlogSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
-from BLOG.service import list_permission
 from Users.permissions import employee_verification
 from .service import filter_blog
 

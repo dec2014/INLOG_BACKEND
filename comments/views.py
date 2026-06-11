@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from rest_framework import generics,permissions
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import commentsSerialization

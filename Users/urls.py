@@ -7,7 +7,9 @@ urlpatterns=[
     path('create/',views.CreateUser.as_view()),
     path('verify/<str:uuid>/<str:token>/',views.Verification.as_view()),
     path('employee-create/',views.EmployeeTemperary.as_view()),
-    path('password-change/<str:pk>/',views.changePassword.as_view()),
-    path('password-force-change/<str:pk>/',views.force_password_reset.as_view()),
-    path('password-change-Founder/<str:pk>/',views.changePasswordByFounder.as_view())
+    path('password-change/<int:pk>/',views.changePassword.as_view()),
+    path('password-force-change/<int:pk>/',views.force_password_reset.as_view()),
+    path('password-change-Founder/<int:pk>/',views.changePasswordByFounder.as_view()),
+    path('employee/<int:pk>/',views.employee_retrieve.as_view()),
+    path('employee-all/<int:pk>/',views.employee_list.as_view())
 ]

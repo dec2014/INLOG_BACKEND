@@ -1,6 +1,7 @@
 from .models import Blog,Tag
 from rest_framework.exceptions import ValidationError
 from django.db import IntegrityError,transaction
+from django.db.models.aggregates import Count
 from django.db.models import Q,F
 from rest_framework.permissions import IsAuthenticated
 from Users.permissions import employee_verification
@@ -13,9 +14,26 @@ from organization.permissions import belong_to_same_organization
 from Read.service import get_or_create_blogread
 from tag.service import get_create_tag
 from follow.service import user_following_list_exists,organization_following_list_exists
+
+
+def total_post_organization(id):
+    return Blog.objects.filter(organization_id=id).count()
+
+def total_post_user(id):
+    return Blog.objects.filter(created_by_id=id).count()
+
+def blog_pinned_by_user(user):
+    return Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(pinnedblog__pin_by=user,pinnedblog__pin=True)
+
+def blog_pinned_by_organization(user):
+    return Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(pinnedblog__pin_by__organization_id=user.organization_id ,pinnedblog__founder_pin=True)
+
+def like_blog_by_users(user):
+    return Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(blog_like__like_user_id=user.id ,blog_like__like=True)
+
 def get_blog__organization(id):
     try:
-        blog= Blog.objects.select_related('organization').get(id=id)
+        blog= Blog.objects.select_related('organization').prefetch_related('tag').get(id=id)
         return blog
     except IntegrityError as e:
         raise ValidationError({
@@ -24,14 +42,30 @@ def get_blog__organization(id):
         })
     
 
+def get_blog__organization__user(id):
+    try:
+        blog= Blog.objects.select_related('organization','creted_by').prefetch_related('tag').get(id=id)
+        return blog
+    except IntegrityError as e:
+        raise ValidationError({
+            'error':'blog could not be found',
+            'detail':str(e)
+        })
+    
+
+
 def filter_blog__organization__user(id):
-    Blog.objects.select_related('organization','created_by').filter(organization_id=id)
+    Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(organization_id=id).annotate(likes_count=Count('bloglike',
+                                                                                                                                           filter=Q(bloglike__like=True)),
+                                                                                                                                           comment_count=Count('comments')
+    )
 
 def get_blog__organization_all():
-    Blog.objects.select_related('organization').all()
+    Blog.objects.select_related('organization').prefetch_related('tag').all()
 
 def get_blog__organization__user_all():
-    Blog.objects.select_related('organization','created_by').all()
+    Blog.objects.select_related('organization','created_by').prefetch_related('tag').all()
+    
 
 
 def search_blogs(self,search,organizationfollowing,following):
@@ -89,7 +123,9 @@ def blog_read(self,request,*args,**kwargs):
         
         get_or_create_blogread(self.blog,request.user)
         streak_logic(request.user.id)
-        return Response(serializer.data)
+        return Response({
+            serializer.data
+                         })
     except Exception as e:
         raise ValidationError({
             'error':'could not fetch the blog',
@@ -105,7 +141,7 @@ def blog_update(self,serializer):
         for tag in tags:
             t,_=get_create_tag(tag)
             a.append(t)
-        if a is not None:
+        if a:
             blog.tag.set(a)
         return super().perform_update(serializer)
     except Exception as e:

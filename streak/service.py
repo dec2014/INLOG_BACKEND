@@ -5,6 +5,12 @@ def get_streak():
     return Streak.objects.get(user_streak_id=id)
 
 
+def create_streak(id):
+    Streak.objects.create(user_streak_id=id)
+
+def top_employee_on_streak(id):
+    return Streak.objects.select_related('user_streak').filter(user_streak__organization_id=id).order_by('-count').first().user_streak.user_name
+
 def streak_logic(id):
     streak=get_streak(id)
     time_now=timezone.now().date()

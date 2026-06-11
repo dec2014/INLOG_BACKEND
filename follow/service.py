@@ -5,7 +5,10 @@ from django.db import transaction,IntegrityError
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from notifications.service import create_follow_notification,send_notification_founder,send_notification_founder_follow,send_notification_founder_unfollow,send_notification_user_follow,send_notification_user_unfollow
-from Users.service import current_user_logined
+
+
+def count_organization_follower(id):
+    return UserFollowing.objects.filter(following_id=id).count()
 
 def get_organization_following_list(id):
     return OrganizationFollowing.objects.select_related('following').filter(organization_id=id).values_list('following__Name',flat=True)
@@ -81,7 +84,7 @@ def unfollow_user(current_user,obj):
 
 @transaction.atomic
 def follow(request,obj):
-
+    from Users.service import current_user_logined
     try:
         
         current_user=current_user_logined(request.user.id)
@@ -136,7 +139,7 @@ def follow(request,obj):
 
 @transaction.atomic
 def unfollow(request,obj):
-
+    from Users.service import current_user_logined
     try:
         
         current_user=current_user_logined(request.user.id)

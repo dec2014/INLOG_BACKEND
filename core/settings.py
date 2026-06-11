@@ -50,7 +50,11 @@ INSTALLED_APPS = [
     'notifications',
     'Read',
     'streak',
-    'comments'
+    'comments',
+    'Analytics',
+    'like',
+    'Pin',
+    'search'
 
 ]
 

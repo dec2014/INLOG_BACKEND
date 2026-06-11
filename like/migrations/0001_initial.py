@@ -10,19 +10,21 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('BLOG', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Organization',
+            name='BlogLike',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('Name', models.CharField(max_length=255, unique=True)),
-                ('bio_pitcure', models.ImageField(blank=True, null=True, upload_to='organizationProfile/')),
-                ('type', models.CharField(choices=[('Pvt', 'Private'), ('Pub', 'Public')], default='Pvt', max_length=3)),
-                ('body', models.TextField()),
-                ('founder', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='founder', to=settings.AUTH_USER_MODEL)),
+                ('like', models.BooleanField(default=True)),
+                ('blog', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='blog_like', to='BLOG.blog')),
+                ('like_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
+            options={
+                'unique_together': {('blog', 'like_user')},
+            },
         ),
     ]

@@ -6,13 +6,13 @@ class Comment_access_permission(BasePermission):
         if obj.blog.organization.type=='Pvt':
             following_exists=user_following_list_exists(request.user.id,obj.blog.organization_id)
             organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, obj.blog.organization_id)
-            if request.user.organization==obj.organization or following_exists or organizationfollowing_exists :
+            if request.user.organization==obj.blog.organization or following_exists or organizationfollowing_exists :
                 return True
             else :
                 self.message=f'you must belong to or follow the organization {obj.blog.organization.Name} to read a blog '
                 return False
             
-        elif obj.organization.type=='Pub':
+        elif obj.blog.organization.type=='Pub':
             return True
 
 class Comments_update_permission(BasePermission):

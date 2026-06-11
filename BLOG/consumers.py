@@ -1,10 +1,9 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from rest_framework.response import Response
 import json
-from .models import Blog,BlogNotification,OrganizationFollower,OrganizationFollowing
-
+from notifications.models import BlogNotification
 from organization.models import Organization
-from Users.models import employees,UserFollowing
+from follow.models import UserFollowing,OrganizationFollowing
 from asgiref.sync import sync_to_async
 
 

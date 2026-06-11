@@ -2,11 +2,12 @@ from .models import Organization
 from rest_framework.exceptions import ValidationError,APIException
 from rest_framework.permissions import IsAuthenticated
 from .permissions import organizaition_creation_permission,organization_update_permission
-from Users.permissions import employee_verification
+
 from django.db import transaction,IntegrityError
 
 def get_all_organization():
     return Organization.objects.all()
+
 
 def get_organization(id):
     try:
@@ -14,6 +15,14 @@ def get_organization(id):
         return organization
     except IntegrityError as e:
         raise ValidationError('no organization with such id exists')
+    
+
+def get_organization_by_founder(id):
+    try:
+        organization= Organization.objects.get(id=id)
+        return organization
+    except IntegrityError as e:
+        raise ValidationError('no organization with such founder exists')
     
 
 @transaction.atomic
@@ -34,6 +43,7 @@ def organization_create(self,serializer):
 
 
 def organization_permissions(self):
+    from Users.permissions import employee_verification
     permission_map = {
 
     'list': [IsAuthenticated,employee_verification],

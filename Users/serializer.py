@@ -1,16 +1,16 @@
 from rest_framework import serializers
-from .models import NewUser
+from .models import employees
 from django.utils import timezone
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta():
-        model=NewUser
+        model=employees
         fields=['id','user_name','password','first_name','last_name','email','bio_pitcure']
         read_only_fields=['id',]
     def create(self, validated_data):
-        return NewUser.objects.create_user(**validated_data)
+        return employees.objects.create_user(**validated_data)
     
 
 class UserCreateEmployeeSerializer(serializers.ModelSerializer):
@@ -18,17 +18,26 @@ class UserCreateEmployeeSerializer(serializers.ModelSerializer):
         ('E','Employee')
     ])
     class Meta():
-        model=NewUser
+        model=employees
         fields=['id','user_name','password','first_name','last_name','email','bio_pitcure','role']
         read_only_fields=['organization','id']
     def create(self, validated_data):
-        return NewUser.objects.create_user(**validated_data)
+        return employees.objects.create_user(**validated_data)
+
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    
+    class Meta():
+        model=employees
+        fields=['id','user_name','password','first_name','last_name','email','bio_pitcure','role']
+        read_only_fields=['organization','id']
+    
 
 
 
 class changePasswordSerializer(serializers.ModelSerializer):
     class Meta():
-        model=NewUser
+        model=employees
         fields=['password',]
 
     def update(self, instance, validated_data):

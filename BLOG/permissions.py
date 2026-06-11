@@ -3,7 +3,7 @@ from follow.service import user_following_list_exists,organization_following_lis
 
 class Blog_access_permission(BasePermission):
     def has_object_permission(self, request, view, obj):
-        if obj.blog.organization.type=='Pvt':
+        if obj.organization.type=='Pvt':
             following_exists=user_following_list_exists(request.user.id,obj.organization_id)
             organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, obj.organization_id)
             if request.user.organization==obj.organization or following_exists or organizationfollowing_exists :

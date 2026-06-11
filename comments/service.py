@@ -10,6 +10,13 @@ from streak.service import get_streak,streak_logic
 from notifications.service import send_comment,send_comment_delete
 from rest_framework.response import Response
 from .permissions import Comments_update_permission,Comment_access_permission
+
+def all_comment_user(id):
+    return Comments.objects.filter(owner_id=id).count()
+
+def comments_blog(blog):
+    return Comments.objects.filter(blog_id=blog).count()
+
 def get_all_comments():
     return Comments.objects.all()
 
