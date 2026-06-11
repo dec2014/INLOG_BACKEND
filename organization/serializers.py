@@ -11,7 +11,7 @@ class UserSerialization(serializers.ModelSerializer):
         fields=['user_name','first_name','bio_pitcure']
 
 class OrganizationSerializers(serializers.ModelSerializer):
-    founder=UserSerialization()
+    founder=UserSerialization(read_only=True)
     def validate_Name(self, value):
 
         value = value.strip()

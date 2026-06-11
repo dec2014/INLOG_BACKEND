@@ -6,10 +6,10 @@ from .serializers import OrganizationSerializers,OrganizationRetrieveSerializers
 # Create your views here.
 
 class OrganizationViewset(ModelViewSet):
-    serializer_class=OrganizationSerializers
+
     lookup_field='pk'
     authentication_classes=[JWTAuthentication]
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer_class(self, *args, **kwargs):
         if self.action!='retrieve':
             return OrganizationSerializers
         return OrganizationRetrieveSerializers
@@ -18,7 +18,7 @@ class OrganizationViewset(ModelViewSet):
         
     
     def get_permissions(self):
-        organization_permissions(self)
+        return organization_permissions(self)
        
     
     def perform_create(self, serializer):

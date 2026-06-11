@@ -5,14 +5,16 @@ class organizaition_creation_permission(BasePermission):
         if request.user.role != 'F':
             self.message = "Only founders can create organizations."
             return False
-
+        if request.user.is_verified != True:
+            self.message='you must verify yourself to create the organization.'
+            return False
         return True
-    
+
 class organization_update_permission(BasePermission):
    
     def has_object_permission(self, request, view, obj):
         if request.user.role != 'F':
-            self.message = "Only founders can create organizations."
+            self.message = "Only founders can update organizations."
             return False
 
         if request.user.organization_id!=obj.id:

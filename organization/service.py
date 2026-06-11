@@ -8,6 +8,8 @@ from django.db import transaction,IntegrityError
 def get_all_organization():
     return Organization.objects.all()
 
+def get_all_organization():
+    return Organization.objects.all()
 
 def get_organization(id):
     try:
@@ -50,7 +52,7 @@ def organization_permissions(self):
 
     'retrieve': [IsAuthenticated,employee_verification],
 
-    'create': [IsAuthenticated,employee_verification,organizaition_creation_permission],
+    'create': [IsAuthenticated,organizaition_creation_permission],
 
     'update': [IsAuthenticated,employee_verification,organization_update_permission],
 

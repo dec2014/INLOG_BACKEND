@@ -6,9 +6,10 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from Users.models import employees
 from organization.service import get_organization_by_founder
-from streak.service import get_streak
+from streak.service import create_streak
 from .email import TempEmployeeCredentials
 from follow.service import user_following_list_exists,organization_following_list_exists
+from organization.service import get_organization
 
 def current_user_logined(id):
     try:
@@ -26,7 +27,7 @@ def get_user(id):
 
 def get_employee__organization(id):
     try:
-        current_user=employees.objects.select_related('organization').get(id)
+        current_user=employees.objects.select_related('organization').get(id=id)
         return current_user
     except IntegrityError as e:
         raise ValidationError('cannot find the user')
@@ -68,16 +69,17 @@ def verification_user(self, request, *args, **kwargs):
 @transaction.atomic
 def employee_create(self, request, *args, **kwargs):
     try:
-        email=request.data.get('email','')
-        password=request.data.get('password','')
-        TempEmployeeCredentials(email,password)
+        
         serializer=self.get_serializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             
-            organization=get_organization_by_founder(request.user.id)
+            organization=get_organization_by_founder(request.user.organization_id)
             # user.organization=organization
             serializer.save(is_password_temp=True,organization=organization)
-            get_streak(serializer.data['id'])
+            create_streak(serializer.data['id'])
+            email=request.data.get('email','')
+            password=request.data.get('password','')
+            TempEmployeeCredentials(email,password)
             return Response(serializer.data)
     except Exception as e:
         raise ValidationError({
@@ -127,11 +129,9 @@ def force_password_change_by_founder(self, request, *args, **kwargs):
 def password_change_by_founder_of_employee(self, request, *args, **kwargs):
     try:
         user=get_user(kwargs.get('pk'))
-        if request.user.role !='F':
-            raise ValidationError('you cannot perform the action as you are not the founder of the organizaiton')
-
+        
         if request.user.id==user.id:
-            raise ValidationError('you cannot force yourself the founder to force change your password.')
+            raise ValidationError('you cannot force yourself the founder to change your password.')
 
         if request.user.organization_id!=user.organization_id:
             raise ValidationError('you can only force change the password of employee who belong to your organization')
@@ -153,20 +153,27 @@ def password_change_by_founder_of_employee(self, request, *args, **kwargs):
 
 @transaction.atomic
 def list_employee(self, request, *args, **kwargs):
-    obj=get_employee__organization(kwargs.get('pk'))
-    if obj.organization.type=='Pvt':
-        following_exists=user_following_list_exists(request.user.id,obj.organization_id)
-        organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, obj.organization_id)
-        if request.user.organization==obj.organization or following_exists or organizationfollowing_exists :
+    try:
+        obj=get_organization(kwargs.get('pk'))
+        if obj.type=='Pvt':
+            following_exists=user_following_list_exists(request.user.id,obj.id)
+            organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, obj.id)
+            if request.user.organization_id ==obj.id or following_exists or organizationfollowing_exists :
+                obj_all=employees_organization_all(kwargs.get('pk'))
+                serializer=self.get_serializer(obj_all,many=True)
+                return Response(serializer.data)
+
+            else :
+                self.message=f'you must belong to or follow the organization {obj.blog.organization.Name} to get the employee '
+                return False
+            
+        elif obj.organization.type=='Pub':
             obj_all=employees_organization_all(kwargs.get.id)
             serializer=self.get_serializer(obj_all,many=True)
             return Response(serializer.data)
-
-        else :
-            self.message=f'you must belong to or follow the organization {obj.blog.organization.Name} to get the employee '
-            return False
-        
-    elif obj.organization.type=='Pub':
-        obj_all=employees_organization_all(kwargs.get.id)
-        serializer=self.get_serializer(obj_all,many=True)
-        return Response(serializer.data)
+    
+    except Exception as e:
+        raise ValidationError({
+            'error':'could not get the employees',
+            'details':str(e)
+        })

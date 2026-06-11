@@ -1,7 +1,7 @@
 from .models import Streak
 from django.utils import timezone
 
-def get_streak():
+def get_streak(id):
     return Streak.objects.get(user_streak_id=id)
 
 

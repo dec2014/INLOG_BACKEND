@@ -32,6 +32,15 @@ class employee_retrieve(generics.RetrieveAPIView):
     lookup_field='pk'
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,employee_verification,employee_view_permission]
+    def retrieve(self, request, *args, **kwargs):
+        
+        try:
+            return super().retrieve(request, *args, **kwargs)
+        except Exception as e:
+            raise ValidationError({
+                'error':'could not get the employee',
+                'details':str(e)
+            })
 
 
 class employee_list(generics.ListAPIView):
@@ -40,13 +49,13 @@ class employee_list(generics.ListAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,employee_verification]
     def list(self, request, *args, **kwargs):
-        list_employee(self, request, *args, **kwargs)
+        return list_employee(self, request, *args, **kwargs)
 
 
 class Verification(generics.RetrieveAPIView):
     serializer_class=UserCreateSerializer
     def retrieve(self, request, *args, **kwargs):
-        verification_user(self, request, *args, **kwargs)
+        return verification_user(self, request, *args, **kwargs)
         
 
 
@@ -55,7 +64,7 @@ class EmployeeTemperary(generics.CreateAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]
     def create(self, request, *args, **kwargs):
-        employee_create(self, request, *args, **kwargs)
+        return employee_create(self, request, *args, **kwargs)
     
 
 
@@ -64,14 +73,14 @@ class changePassword(generics.UpdateAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,is_temp_pass]
     def update(self, request, *args, **kwargs):
-        change_password(self, request, *args, **kwargs)
+        return change_password(self, request, *args, **kwargs)
     
 
 class force_password_reset(generics.UpdateAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]
     def update(self, request, *args, **kwargs):
-        force_password_change_by_founder(self, request, *args, **kwargs)
+        return force_password_change_by_founder(self, request, *args, **kwargs)
 
 
 
@@ -81,7 +90,7 @@ class changePasswordByFounder(generics.UpdateAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]
     def update(self, request, *args, **kwargs):
-        password_change_by_founder_of_employee(self, request, *args, **kwargs)
+        return password_change_by_founder_of_employee(self, request, *args, **kwargs)
         
 
 
