@@ -15,7 +15,7 @@ class BlogViewSet(ModelViewSet):
     authentication_classes=[JWTAuthentication]
     lookup_field='pk'
 
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer_class(self, *args, **kwargs):
         if self.action=='retrieve' or self.action=='update' or self.action=='partial_update' or self.action=='destroy':
             return BlogCreateSerializer
         elif self.action=='create':
@@ -23,6 +23,7 @@ class BlogViewSet(ModelViewSet):
         else:
             return BlogListSerializer
     def get_queryset(self):
+        print('called')
         if self.action=='retrieve' or self.action=='update' or self.action=='partial_update' or self.action=='destroy':
             return get_blog__organization__user_all()
         elif self.action=='create':
@@ -44,13 +45,18 @@ class BlogViewSet(ModelViewSet):
     
     def retrieve(self, request, *args, **kwargs):
         self.blog=self.get_object()
-        blog_read(self,request,*args,**kwargs)
+        return blog_read(self,request,*args,**kwargs)
 
     def perform_update(self, serializer):
         blog_update(self,serializer)
+        return super().perform_update(serializer)
     
     def list(self, request, *args, **kwargs):
-        list_permission(self,request,*args,**kwargs)
+        val= list_permission(self,request,*args,**kwargs)
+        if val:
+            return super().list(request, *args, **kwargs)
+        else:
+            return val
     
 
 

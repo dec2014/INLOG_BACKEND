@@ -55,16 +55,18 @@ def get_blog__organization__user(id):
 
 
 def filter_blog__organization__user(id):
-    Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(organization_id=id).annotate(likes_count=Count('bloglike',
-                                                                                                                                           filter=Q(bloglike__like=True)),
+    blogs= Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(organization_id=id).annotate(likes_count=Count('blog_like',
+                                                                                                                                           filter=Q(blog_like__like=True)),
                                                                                                                                            comment_count=Count('comments')
     )
+    return blogs
 
 def get_blog__organization_all():
-    Blog.objects.select_related('organization').prefetch_related('tag').all()
+    return Blog.objects.select_related('organization').prefetch_related('tag').all()
 
 def get_blog__organization__user_all():
-    Blog.objects.select_related('organization','created_by').prefetch_related('tag').all()
+
+    return Blog.objects.select_related('organization','created_by').prefetch_related('tag').all()
     
 
 
@@ -123,9 +125,9 @@ def blog_read(self,request,*args,**kwargs):
         
         get_or_create_blogread(self.blog,request.user)
         streak_logic(request.user.id)
-        return Response({
+        return Response(
             serializer.data
-                         })
+                         )
     except Exception as e:
         raise ValidationError({
             'error':'could not fetch the blog',
@@ -143,7 +145,7 @@ def blog_update(self,serializer):
             a.append(t)
         if a:
             blog.tag.set(a)
-        return super().perform_update(serializer)
+        
     except Exception as e:
         raise ValidationError({
             'error':'blog is not updated',
@@ -155,14 +157,20 @@ def blog_update(self,serializer):
 
 
 def list_permission(self,request,*args,**kwargs):
-    obj=get_organization(kwargs.get('pk'))
-    if obj.organization.type=='Pvt':
-        following_exists=user_following_list_exists(request.user.id,obj.organization_id)
-        organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, obj.organization_id)
-        if request.user.organization_id==obj.id or following_exists or organizationfollowing_exists :
-            return super().list(request, *args, **kwargs)
-        else :
-            raise ValidationError(f'you must belong to or follow the organization {obj.organization.Name} to read blogs posted by it ')
-        
-    elif obj.organization.type=='Pub':
-        return super().list(request, *args, **kwargs)
+    try:
+        obj=get_organization(kwargs.get('pk'))
+        if obj.type=='Pvt':
+            following_exists=user_following_list_exists(request.user.id,obj.id)
+            organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, obj.id)
+            if request.user.organization_id==obj.id or following_exists or organizationfollowing_exists :
+                return True
+            else :
+                raise ValidationError(f'you must belong to or follow the organization {obj.Name} to read blogs posted by it ')
+            
+        elif obj.type=='Pub':
+            return True
+    except Exception as e:
+        raise ValidationError({
+            'error':'blogs cannot be fetched',
+            'details':str(e)
+        })

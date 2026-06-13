@@ -50,8 +50,8 @@ class BlogSerializer(serializers.ModelSerializer):
     )
     liked=serializers.SerializerMethodField()
     pinned=serializers.SerializerMethodField()
-    organization=OrganizatoinSerializers()
-    created_by=UserSerialization()
+    organization=OrganizatoinSerializers(read_only=True)
+    created_by=UserSerialization(read_only=True)
     likes_count=serializers.SerializerMethodField()
     comment_count=serializers.SerializerMethodField()
     class Meta:
