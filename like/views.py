@@ -19,7 +19,7 @@ class blogLike(generics.CreateAPIView):
     
     def create(self,request,*args,**kwargs):
         self.blog=self.get_object()
-        like_unlike_blog(self,request,*args,**kwargs)
+        return like_unlike_blog(self,request,*args,**kwargs)
 
         
 
@@ -28,4 +28,4 @@ class liked_blog_by_user(generics.ListAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated]
     def get_queryset(self):
-        return like_blog_by_users(self.user)
+        return like_blog_by_users(self.request.user)
