@@ -23,7 +23,7 @@ def total_post_user(id):
     return Blog.objects.filter(created_by_id=id).count()
 
 def blog_pinned_by_user(user):
-    return Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(pinnedblog__pin_by=user,pinnedblog__pin=True)
+    return Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(pinnedblog__pin_by_id=user.id,pinnedblog__pin=True)
 
 def blog_pinned_by_organization(user):
     return Blog.objects.select_related('organization','created_by').prefetch_related('tag').filter(pinnedblog__pin_by__organization_id=user.organization_id ,pinnedblog__founder_pin=True)

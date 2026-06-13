@@ -34,9 +34,9 @@ def pin_blog(self,request,*args,**kwargs):
         obj_pin,created=blog_pin_create_update(self.blog,request.user)
 
 
-        return Response({'like':obj_pin.pin,'created':created})
+        return Response({'pin':obj_pin.pin,'created':created})
     except Exception as e:
-        ValidationError({
+        raise ValidationError({
             'error':'could not pin the blog',
             'details':str(e)
         })
