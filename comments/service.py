@@ -56,12 +56,12 @@ def comment_create_permission(self,request,*args,**kwargs):
         following_exists=user_following_list_exists(request.user.id,self.obj.organization_id)
         organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, self.obj.organization_id)
         if request.user.organization==self.obj.organization or following_exists or organizationfollowing_exists :
-            return super().create(request, *args, **kwargs)
+            return True
         else :
             raise ValidationError(f'you must belong to or follow the organization {self.obj.organization.Name} to comment on it')
         
     elif self.obj.organization.type=='Pub':
-        return super().create(request, *args, **kwargs)
+        return True
 
 
 
@@ -72,12 +72,12 @@ def comment_get_list_permission(self,request,*args,**kwargs):
         following_exists=user_following_list_exists(request.user.id,self.obj.organization_id)
         organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, self.obj.organization_id)
         if request.user.organization==self.obj.organization or following_exists or organizationfollowing_exists:
-            return super().list(request, *args, **kwargs)
+            return True
         else :
             raise ValidationError(f'you must belong to or follow the organization {self.obj.organization.Name} to get the comments of this blog on it')
         
     elif self.obj.organization.type=='Pub':
-        return super().list(request, *args, **kwargs)
+        return True
 
 
 @transaction.atomic

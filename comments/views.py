@@ -20,7 +20,11 @@ class CommentsViewSet(ModelViewSet):
         return comment_permissions(self)
     
     def create(self, request, *args, **kwargs):
-        comment_create_permission(self,request,*args,**kwargs)
+        val=comment_create_permission(self,request,*args,**kwargs)
+        if val:
+            return super().create(request, *args, **kwargs)
+        else:
+            return val
 
     def perform_create(self, serializer):
         comment_create(self,serializer)
@@ -32,7 +36,12 @@ class CommentsViewSet(ModelViewSet):
         comment_delete(self,instance)
 
     def list(self, request, *args, **kwargs):
-        comment_get_list_permission(self,request,*args,**kwargs)
+        val=comment_get_list_permission(self,request,*args,**kwargs)
+        if val:
+            return super().list(request, *args, **kwargs)
+        else:
+            return val
+
 
     
         
