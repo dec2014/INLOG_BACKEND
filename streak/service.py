@@ -6,7 +6,7 @@ def get_streak(id):
 
 
 def create_streak(id):
-    Streak.objects.create(user_streak_id=id)
+    return Streak.objects.create(user_streak_id=id)
 
 def top_employee_on_streak(id):
     return Streak.objects.select_related('user_streak').filter(user_streak__organization_id=id).order_by('-count').first().user_streak.user_name

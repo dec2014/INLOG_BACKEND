@@ -107,6 +107,8 @@ def blog_create(self,serializer):
         for tag in tags:
             t,_=get_create_tag(tag)
             blog.tag.add(t)
+
+        print(self.request.user.id)
         streak_logic(self.request.user.id)
         transaction.on_commit(
             lambda:send_blog(self,blog)

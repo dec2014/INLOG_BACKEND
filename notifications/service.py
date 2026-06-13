@@ -60,7 +60,7 @@ def send_comment_delete(id,name):
 
 
 def send_notification_founder(obj,content):
-    room2=user_room(obj.id)
+    room2=user_room(obj.founder_id)
     channel_layer=get_channel_layer()
     try:
         async_to_sync(channel_layer.group_send)(room2,{

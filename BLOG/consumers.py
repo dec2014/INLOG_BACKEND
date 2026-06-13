@@ -44,9 +44,9 @@ class organization(AsyncWebsocketConsumer):
     
 
     async def blog_notification(self,event):
-        if event['user_name']!=self.user.user_name:
-            await self.BlogCreation(event)
-            await self.send(text_data=json.dumps(event))
+        
+        await self.BlogCreation(event)
+        await self.send(text_data=json.dumps(event))
 
 
 
