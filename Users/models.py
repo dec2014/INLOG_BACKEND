@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager,PermissionsMixin,AbstractBaseUser
-from .email import EmailVerification,TempEmployeeCredentials
+from verification.service import EmailVerification,TempEmployeeCredentials
 from organization.models import Organization
 # Create your models here.
 
