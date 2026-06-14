@@ -7,7 +7,7 @@ from django.contrib.auth.tokens import default_token_generator
 from Users.models import employees
 from organization.service import get_organization_by_founder
 from streak.service import create_streak
-from .email import TempEmployeeCredentials
+from verification.service import TempEmployeeCredentials
 from follow.service import user_following_list_exists,organization_following_list_exists
 from organization.service import get_organization
 
