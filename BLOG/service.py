@@ -44,7 +44,7 @@ def get_blog__organization(id):
 
 def get_blog__organization__user(id):
     try:
-        blog= Blog.objects.select_related('organization','creted_by').prefetch_related('tag').get(id=id)
+        blog= Blog.objects.select_related('organization','created_by').prefetch_related('tag').get(id=id)
         return blog
     except IntegrityError as e:
         raise ValidationError({

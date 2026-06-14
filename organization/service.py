@@ -2,8 +2,13 @@ from .models import Organization
 from rest_framework.exceptions import ValidationError,APIException
 from rest_framework.permissions import IsAuthenticated
 from .permissions import organizaition_creation_permission,organization_update_permission
-
+from asgiref.sync import sync_to_async
 from django.db import transaction,IntegrityError
+
+@sync_to_async
+def async_get_organization(self):
+    return Organization.objects.get(id=self.user.organization_id)
+
 
 def get_all_organization():
     return Organization.objects.all()

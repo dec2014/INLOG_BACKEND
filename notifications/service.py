@@ -1,8 +1,21 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from .models import FollowNotification
+from .models import FollowNotification,BlogNotification
+from asgiref.sync import sync_to_async
+from django.utils.text import Truncator
 import logging
 logger = logging.getLogger(__name__)
+
+
+
+@sync_to_async
+def asyncBlogCreation(self,event):
+    BlogNotification.objects.create(blog_id=event['id'],sent_to_id=self.user.id)
+
+    return True
+
+
+
 
 def user_room(id):
     return f'user_{id}'
@@ -117,7 +130,7 @@ def send_blog(self,blog):
         async_to_sync(channel_layer.group_send)(room,{
             'type':'blog_notification',
             'id':blog.id,
-            'content':blog.content,
+            'content':Truncator(blog.content).chars(100),
             'created_by':blog.created_by.user_name,
             'created_at':str(blog.created_at),
             'user_name':self.request.user.user_name

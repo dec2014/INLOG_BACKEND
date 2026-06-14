@@ -10,7 +10,7 @@ class EmployeeAnalytics(generics.RetrieveAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated,employee_verification]
     def get(self, request, *args, **kwargs):
-        employee_analytics(self, request, *args, **kwargs)
+        return employee_analytics(self, request, *args, **kwargs)
         
     
 
@@ -19,4 +19,4 @@ class OrganizationAnalytics(generics.RetrieveAPIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated,employee_verification]
     def get(self, request, *args, **kwargs):
-        organization_analytics(self, request, *args, **kwargs)
+        return organization_analytics(self, request, *args, **kwargs)

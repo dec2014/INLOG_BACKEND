@@ -1,10 +1,22 @@
 from Users.models import employees
 from .models import OrganizationFollower,OrganizationFollowing,UserFollowing
-
+from asgiref.sync import sync_to_async
 from django.db import transaction,IntegrityError
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from notifications.service import create_follow_notification,send_notification_founder,send_notification_founder_follow,send_notification_founder_unfollow,send_notification_user_follow,send_notification_user_unfollow
+
+
+@sync_to_async
+def async_organization_following(self):
+    organization=list(OrganizationFollowing.objects.select_related('following').filter(organization_id=self.user.organization_id).values_list('following__Name',flat=True))
+    return organization    
+
+
+@sync_to_async
+def async_user_following(self):
+    user=list(UserFollowing.objects.select_related('following').filter(user_id=self.user.id).values_list('following__Name',flat=True))
+    return user
 
 
 def count_organization_follower(id):

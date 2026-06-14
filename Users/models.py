@@ -25,7 +25,7 @@ class CustomManager(BaseUserManager):
         
         user.save()
         if user.role==self.model.roles.FOUNDER:
-            EmailVerification(email,user)
+            EmailVerification(self.request,email,user)
         
         return user
     def create_superuser(self, email,password,**otherfields):

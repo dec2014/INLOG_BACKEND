@@ -9,11 +9,12 @@ class Blog_access_permission(BasePermission):
             if request.user.organization==obj.organization or following_exists or organizationfollowing_exists :
                 return True
             else :
-                self.message=f'you must belong to or follow the organization {obj.blog.organization.Name} to read a blog '
+                self.message=f'you must belong to or follow the organization {obj.organization.Name} to read a blog '
                 return False
             
         elif obj.organization.type=='Pub':
             return True
+
 
 class blog_update_destroy_permission(BasePermission):
     def has_object_permission(self, request, view, obj):

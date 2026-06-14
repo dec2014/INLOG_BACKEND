@@ -1,9 +1,9 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from rest_framework.response import Response
 import json
-from notifications.models import BlogNotification
-from organization.models import Organization
-from follow.models import UserFollowing,OrganizationFollowing
+from .service import asyncBlogCreation,notification_room
+from organization.service import async_get_organization
+from follow.service import async_organization_following,async_user_following
 from asgiref.sync import sync_to_async
 
 
@@ -16,11 +16,11 @@ class organization(AsyncWebsocketConsumer):
             return Response('user not logged in.')
         
         self.group_user=f'user_{self.user.id}'
-        organization=await self.get_organization()
+        organization=await async_get_organization(self)
         self.group_organization=f'organization_{organization.Name}'
         self.notification_organization_group=f'notification_{organization.Name}'
-        self.user_followings=await self.user_following()
-        self.organization_followings= await self.organization_following()
+        self.user_followings=await async_user_following(self)
+        self.organization_followings= await async_organization_following(self)
 
         self.followings=set(self.user_followings + self.organization_followings)
         await self.channel_layer.group_add(self.group_organization,self.channel_name)
@@ -45,7 +45,8 @@ class organization(AsyncWebsocketConsumer):
 
     async def blog_notification(self,event):
         
-        await self.BlogCreation(event)
+        await asyncBlogCreation(self,event)
+
         await self.send(text_data=json.dumps(event))
 
 
@@ -60,13 +61,13 @@ class organization(AsyncWebsocketConsumer):
 
 
     async def follower_founder(self,event):
-        room=f'notification_{event["name"]}'
+        room=notification_room(event["name"])
         await self.channel_layer.group_add(room,self.channel_name)
 
 
 
     async def unfollower_employee(self,event):
-        room=f'notification_{event["name"]}'
+        room=notification_room(event["name"])
         await self.channel_layer.group_discard(room,self.channel_name)
 
 
@@ -84,7 +85,7 @@ class organization(AsyncWebsocketConsumer):
 
 
     async def unfollower_founder(self,event):
-        room=f'notification_{event["name"]}'
+        room=notification_room(event["name"])
         await self.channel_layer.group_discard(room,self.channel_name)
 
 
@@ -92,28 +93,12 @@ class organization(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
 
-    @sync_to_async
-    def organization_following(self):
-        organization=list(OrganizationFollowing.objects.select_related('following').filter(organization_id=self.user.organization_id).values_list('following__Name',flat=True))
-        return organization    
-
-    @sync_to_async
-    def get_organization(self):
-        return Organization.objects.get(id=self.user.organization_id)
 
 
-    @sync_to_async
-    def user_following(self):
-        user=list(UserFollowing.objects.select_related('following').filter(user_id=self.user.id).values_list('following__Name',flat=True))
-        return user
-    
 
 
-    @sync_to_async
-    def BlogCreation(self,event):
-        BlogNotification.objects.create(blog_id=event['id'],sent_to_id=self.user.id)
 
-        return True
+
 
 
 
