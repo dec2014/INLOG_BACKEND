@@ -11,3 +11,5 @@ PyJWT==2.12.1
 sqlparse==0.4.4
 whitenoise==6.11.0
 python-dotenv==1.2.1
+dj-database-url
+psycopg2-binary
