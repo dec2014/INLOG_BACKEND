@@ -2,13 +2,21 @@ from .models import Comments
 from rest_framework.permissions import IsAuthenticated
 from Users.permissions import employee_verification
 from BLOG.service import get_blog__organization
-from follow.service import get_organization_following_list,get_user_following_list
+from BLOG.permissions import Blog_access_permission
+from follow.service import user_following_list_exists,organization_following_list_exists
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from streak.service import get_streak,streak_logic
 from notifications.service import send_comment,send_comment_delete
 from rest_framework.response import Response
-from .permissions import Comments_update_permission,comment_access_permission
+from .permissions import Comments_update_permission,Comment_access_permission
+
+def all_comment_user(id):
+    return Comments.objects.filter(owner_id=id).count()
+
+def comments_blog(blog):
+    return Comments.objects.filter(blog_id=blog).count()
+
 def get_all_comments():
     return Comments.objects.all()
 
@@ -27,15 +35,15 @@ def comment_permissions(self):
 
     'list': [IsAuthenticated,employee_verification],
 
-    'retrieve': [IsAuthenticated,employee_verification,comment_access_permission],
+    'retrieve': [IsAuthenticated,employee_verification,Comment_access_permission],
 
     'create': [IsAuthenticated,employee_verification,],
 
-    'update': [IsAuthenticated,employee_verification,comment_access_permission,Comments_update_permission],
+    'update': [IsAuthenticated,employee_verification,Comment_access_permission,Comments_update_permission],
 
-    'partial_update': [IsAuthenticated,employee_verification,comment_access_permission,Comments_update_permission],
+    'partial_update': [IsAuthenticated,employee_verification,Comment_access_permission,Comments_update_permission],
 
-    'destroy': [IsAuthenticated,employee_verification,comment_access_permission,Comments_update_permission],
+    'destroy': [IsAuthenticated,employee_verification,Comment_access_permission,Comments_update_permission],
     }
     permissions=permission_map.get(self.action,[IsAuthenticated])
     return [permission() for permission in permissions]
@@ -45,15 +53,15 @@ def comment_create_permission(self,request,*args,**kwargs):
     id=kwargs.get('pk')
     self.obj=get_blog__organization(id)
     if self.obj.organization.type=='Pvt':
-        following=get_user_following_list(request.user)
-        organizationfollowing=get_organization_following_list(request.user)
-        if request.user.organization==self.obj.organization or self.obj.organization.Name in following or self.obj.organization.Name in organizationfollowing :
-            return super().create(request, *args, **kwargs)
+        following_exists=user_following_list_exists(request.user.id,self.obj.organization_id)
+        organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, self.obj.organization_id)
+        if request.user.organization==self.obj.organization or following_exists or organizationfollowing_exists :
+            return True
         else :
             raise ValidationError(f'you must belong to or follow the organization {self.obj.organization.Name} to comment on it')
         
     elif self.obj.organization.type=='Pub':
-        return super().create(request, *args, **kwargs)
+        return True
 
 
 
@@ -61,15 +69,15 @@ def comment_get_list_permission(self,request,*args,**kwargs):
     id=kwargs.get('pk')
     self.obj=get_blog__organization(id)
     if self.obj.organization.type=='Pvt':
-        following=get_user_following_list(request.user)
-        organizationfollowing=get_organization_following_list(request.user)
-        if request.user.organization==self.obj.organization or self.obj.organization.Name in following or self.obj.organization.Name in organizationfollowing :
-            return super().list(request, *args, **kwargs)
+        following_exists=user_following_list_exists(request.user.id,self.obj.organization_id)
+        organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, self.obj.organization_id)
+        if request.user.organization==self.obj.organization or following_exists or organizationfollowing_exists:
+            return True
         else :
             raise ValidationError(f'you must belong to or follow the organization {self.obj.organization.Name} to get the comments of this blog on it')
         
     elif self.obj.organization.type=='Pub':
-        return super().list(request, *args, **kwargs)
+        return True
 
 
 @transaction.atomic

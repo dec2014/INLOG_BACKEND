@@ -2,11 +2,35 @@ from .models import Organization
 from rest_framework.exceptions import ValidationError,APIException
 from rest_framework.permissions import IsAuthenticated
 from .permissions import organizaition_creation_permission,organization_update_permission
-from Users.permissions import employee_verification
-from django.db import transaction
+from asgiref.sync import sync_to_async
+from django.db import transaction,IntegrityError
+
+@sync_to_async
+def async_get_organization(self):
+    return Organization.objects.get(id=self.user.organization_id)
+
 
 def get_all_organization():
     return Organization.objects.all()
+
+def get_all_organization():
+    return Organization.objects.all()
+
+def get_organization(id):
+    try:
+        organization= Organization.objects.get(id=id)
+        return organization
+    except IntegrityError as e:
+        raise ValidationError('no organization with such id exists')
+    
+
+def get_organization_by_founder(id):
+    try:
+        organization= Organization.objects.get(id=id)
+        return organization
+    except IntegrityError as e:
+        raise ValidationError('no organization with such founder exists')
+    
 
 @transaction.atomic
 def organization_create(self,serializer):
@@ -26,13 +50,14 @@ def organization_create(self,serializer):
 
 
 def organization_permissions(self):
+    from Users.permissions import employee_verification
     permission_map = {
 
     'list': [IsAuthenticated,employee_verification],
 
     'retrieve': [IsAuthenticated,employee_verification],
 
-    'create': [IsAuthenticated,employee_verification,organizaition_creation_permission],
+    'create': [IsAuthenticated,organizaition_creation_permission],
 
     'update': [IsAuthenticated,employee_verification,organization_update_permission],
 

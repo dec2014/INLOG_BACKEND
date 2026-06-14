@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager,PermissionsMixin,AbstractBaseUser
-from .email import EmailVerification,TempEmployeeCredentials
+from verification.service import EmailVerification,TempEmployeeCredentials
 from organization.models import Organization
 # Create your models here.
 
@@ -24,8 +24,8 @@ class CustomManager(BaseUserManager):
         user.set_password(password)
         
         user.save()
-        if user.role==self.model.roles.FOUNDER:
-            EmailVerification(email,user)
+        
+            
         
         return user
     def create_superuser(self, email,password,**otherfields):

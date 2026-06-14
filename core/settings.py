@@ -45,7 +45,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'BLOG',
     'organization',
-    'follow'
+    'follow',
+    'tag',
+    'notifications',
+    'Read',
+    'streak',
+    'comments',
+    'Analytics',
+    'like',
+    'Pin',
+    'search'
 
 ]
 

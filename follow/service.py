@@ -1,19 +1,38 @@
 from Users.models import employees
 from .models import OrganizationFollower,OrganizationFollowing,UserFollowing
-
+from asgiref.sync import sync_to_async
 from django.db import transaction,IntegrityError
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from notifications.service import create_follow_notification,send_notification_founder,send_notification_founder_follow,send_notification_founder_unfollow,send_notification_user_follow,send_notification_user_unfollow
-from Users.service import current_user_logined
-
-def get_organization_following_list(user):
-    return OrganizationFollowing.objects.select_related('following').filter(organization_id=user.organization_id).values_list('following__Name',flat=True)
-
-def get_user_following_list(user):
-    return UserFollowing.objects.select_related('following').filter(user_id=user.id).values_list('following__Name',flat=True)
 
 
+@sync_to_async
+def async_organization_following(self):
+    organization=list(OrganizationFollowing.objects.select_related('following').filter(organization_id=self.user.organization_id).values_list('following__Name',flat=True))
+    return organization    
+
+
+@sync_to_async
+def async_user_following(self):
+    user=list(UserFollowing.objects.select_related('following').filter(user_id=self.user.id).values_list('following__Name',flat=True))
+    return user
+
+
+def count_organization_follower(id):
+    return UserFollowing.objects.filter(following_id=id).count()
+
+def get_organization_following_list(id):
+    return OrganizationFollowing.objects.select_related('following').filter(organization_id=id).values_list('following__Name',flat=True)
+
+def get_user_following_list(id):
+    return UserFollowing.objects.select_related('following').filter(user_id=id).values_list('following__Name',flat=True)
+
+def organization_following_list_exists(organization_id,following_id):
+    return OrganizationFollowing.objects.select_related('following').filter(organization_id=organization_id,following_id=following_id).exists()
+
+def user_following_list_exists(user_id,organization_id):
+    return UserFollowing.objects.select_related('following').filter(user_id=user_id,following_id=organization_id).exists()
 
 def create_follow(obj,current_user):
     try:
@@ -77,7 +96,7 @@ def unfollow_user(current_user,obj):
 
 @transaction.atomic
 def follow(request,obj):
-
+    from Users.service import current_user_logined
     try:
         
         current_user=current_user_logined(request.user.id)
@@ -132,7 +151,7 @@ def follow(request,obj):
 
 @transaction.atomic
 def unfollow(request,obj):
-
+    from Users.service import current_user_logined
     try:
         
         current_user=current_user_logined(request.user.id)

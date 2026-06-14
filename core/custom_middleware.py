@@ -1,6 +1,6 @@
 from channels.middleware import BaseMiddleware
 from rest_framework_simplejwt.tokens import AccessToken
-from Users.models import NewUser
+from Users.models import employees
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import AnonymousUser
 
@@ -27,7 +27,7 @@ class Custom_middleware(BaseMiddleware):
     @database_sync_to_async
     def get_user(self,user_id,):
         try:
-            return NewUser.objects.get(pk=user_id)
+            return employees.objects.get(pk=user_id)
         except:
             return AnonymousUser()
         

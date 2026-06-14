@@ -16,7 +16,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 app = get_asgi_application()
 
 
-from BLOG import routing
+from notifications import routing
 from channels.auth import AuthMiddlewareStack
 from channels.routing import URLRouter,ProtocolTypeRouter
 from .custom_middleware import Custom_middleware

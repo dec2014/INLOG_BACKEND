@@ -1,115 +1,100 @@
-from django.shortcuts import render
+
 from rest_framework import generics
-from rest_framework.response import Response
-from .models import NewUser
-from .serialization import UserCreateSerializer,UserCreateEmployeeSerializer,changePasswordSerializer,MyTokenObtainPairSerializer
-from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
-from .email import EmailVerification,TempEmployeeCredentials
+from .serializer import UserCreateSerializer,UserCreateEmployeeSerializer,changePasswordSerializer,MyTokenObtainPairSerializer,EmployeeSerializer
+from .service import verification_user,employee_create,change_password,force_password_change_by_founder,password_change_by_founder_of_employee,get_all_employees,get_all_employee__organization,list_employee
 from rest_framework import permissions
-from BLOG.models import Streak
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .permissions import is_temp_pass,is_Founder,Founder_Set_Up,BlogCreater
-from organization.models import Organization
+from .permissions import is_temp_pass,Founder_Set_Up,employeeDeletePermission,employee_view_permission,employee_verification
 from rest_framework_simplejwt.views import TokenObtainPairView
+from streak.service import create_streak
+from django.db import transaction,IntegrityError
+from rest_framework.exceptions import ValidationError
+from verification.service import EmailVerification
+
 
 # Create your views here.
 class CreateUser(generics.CreateAPIView):
-    queryset=NewUser.objects.all()
     serializer_class=UserCreateSerializer
+
+    @transaction.atomic
     def perform_create(self, serializer):
-        serializer.save()
-        Streak.objects.create(user_streak_id=serializer.data['id'])
+        try:
+
+            user=serializer.save()
+            create_streak(serializer.data['id'])
+            transaction.on_commit(
+                lambda:EmailVerification(self.request,user.email,user)
+            )
+        except IntegrityError:
+            raise ValidationError('could not create the user')
         
     
+
+class employee_retrieve(generics.RetrieveAPIView):
+    queryset=get_all_employee__organization()
+    serializer_class=EmployeeSerializer
+    lookup_field='pk'
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[permissions.IsAuthenticated,employee_verification,employee_view_permission]
+    def retrieve(self, request, *args, **kwargs):
+        
+        try:
+            return super().retrieve(request, *args, **kwargs)
+        except Exception as e:
+            raise ValidationError({
+                'error':'could not get the employee',
+                'details':str(e)
+            })
+
+
+class employee_list(generics.ListAPIView):
+    queryset=get_all_employee__organization()
+    serializer_class=EmployeeSerializer
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[permissions.IsAuthenticated,employee_verification]
+    def list(self, request, *args, **kwargs):
+        return list_employee(self, request, *args, **kwargs)
+
 
 class Verification(generics.RetrieveAPIView):
     serializer_class=UserCreateSerializer
     def retrieve(self, request, *args, **kwargs):
-        u=kwargs.get('uuid')
-        uuid=urlsafe_base64_decode(u).decode()
-        try:
-            user=NewUser.objects.get(pk=uuid)
-        except:
-            return Response('not valid')
-        token=kwargs.get('token','')
-        if default_token_generator.check_token(user,token):
-            user.is_verified=True
-            user.save()
-            return Response('verification successfull')
-        return Response('verification failed')
+        return verification_user(self, request, *args, **kwargs)
         
 
 
 class EmployeeTemperary(generics.CreateAPIView):
-    queryset=NewUser.objects.all()
     serializer_class=UserCreateEmployeeSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]
     def create(self, request, *args, **kwargs):
-
-
-        email=request.data.get('email','')
-        password=request.data.get('password','')
-        TempEmployeeCredentials(email,password)
-        serializer=self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            
-            organization=Organiztion.objects.get(founder=request.user)
-            # user.organization=organization
-            serializer.save(is_password_temp=True,organization=organization)
-            Streak.objects.create(user_streak_id=serializer.data['id'])
-            return Response(serializer.data)
-        return Response(serializer.errors)
+        return employee_create(self, request, *args, **kwargs)
     
 
 
 class changePassword(generics.UpdateAPIView):
-    queryset=NewUser.objects.all()
     serializer_class=changePasswordSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,is_temp_pass]
     def update(self, request, *args, **kwargs):
-        if request.user.id==kwargs.get('pk'):
-            user=request.user
-            serializer=self.get_serializer(user,data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response('password changed')
-        return Response('error:password not changed')
+        return change_password(self, request, *args, **kwargs)
     
 
 class force_password_reset(generics.UpdateAPIView):
-    queryset=NewUser.objects.all()
     authentication_classes=[JWTAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]
     def update(self, request, *args, **kwargs):
-        user=NewUser.objects.get(id=kwargs.get('pk'))
-        if request.user.organization_id==user.organization_id and request.user.role=='F' and request.user.id!=user.id:
-            user.is_password_temp=True
-            user.save()
-            return Response('done')
-        return Response('no permission')
+        return force_password_change_by_founder(self, request, *args, **kwargs)
 
 
 
 class changePasswordByFounder(generics.UpdateAPIView):
-    queryset=NewUser.objects.all()
+
     serializer_class=changePasswordSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]
     def update(self, request, *args, **kwargs):
-        user=NewUser.objects.get(id=kwargs.get('pk'))
-        if request.user.organization_id==user.organization_id and request.user.role=='F' and request.user.id!=user.id:
-            password=request.data.get('password','')
-            email=user.email
-            serializer=self.get_serializer(user,data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                TempEmployeeCredentials(email,password)
-                return Response('password changed')
-        return Response('error:password not changed')
+        return password_change_by_founder_of_employee(self, request, *args, **kwargs)
         
 
 
@@ -117,4 +102,9 @@ class mytoken(TokenObtainPairView):
     serializer_class=MyTokenObtainPairSerializer
         
         
-        
+class employeeDelete(generics.DestroyAPIView):
+    queryset=get_all_employees()
+    lookup_field='pk'
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[permissions.IsAuthenticated,employeeDeletePermission]
+

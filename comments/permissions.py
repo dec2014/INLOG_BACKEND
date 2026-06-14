@@ -1,6 +1,19 @@
 from rest_framework.permissions import BasePermission
-from follow.permissions import get_organization_following_list,get_user_following_list
+from follow.service import user_following_list_exists,organization_following_list_exists
 
+class Comment_access_permission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if obj.blog.organization.type=='Pvt':
+            following_exists=user_following_list_exists(request.user.id,obj.blog.organization_id)
+            organizationfollowing_exists=organization_following_list_exists(request.user.organization_id, obj.blog.organization_id)
+            if request.user.organization==obj.blog.organization or following_exists or organizationfollowing_exists :
+                return True
+            else :
+                self.message=f'you must belong to or follow the organization {obj.blog.organization.Name} to read a blog '
+                return False
+            
+        elif obj.blog.organization.type=='Pub':
+            return True
 
 class Comments_update_permission(BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -10,15 +23,3 @@ class Comments_update_permission(BasePermission):
             self.message='you must be the creater of the comment or be the founder of organization the creater belongs to,to update the comment'
             return False
 
-class comment_access_permission(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if obj.blog.organization.type=='Pvt':
-            following=get_user_following_list(request.user)
-            organizationfollowing=get_organization_following_list(request.user)
-            if request.user.organization==self.obj.organization or self.obj.organization.Name in following or self.obj.organization.Name in organizationfollowing :
-                return True
-            else :
-                self.message=f'you must belong to or follow the organization {obj.blog.organization.Name} to comment on it'
-            
-        elif self.obj.organization.type=='Pub':
-            return True

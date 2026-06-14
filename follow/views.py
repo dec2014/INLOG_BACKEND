@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .service import follow
+from .service import follow,unfollow
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from organization.models import Organization
 from organization.serializers import OrganizationSerializers
@@ -16,7 +16,7 @@ class following(generics.CreateAPIView):
     permission_classes=[permissions.IsAuthenticated,followPermissions]
     def create(self, request, *args, **kwargs):
         obj=self.get_object()
-        follow(request,obj)
+        return follow(request,obj)
         
         
 
@@ -32,4 +32,4 @@ class unfollowing(generics.CreateAPIView):
     permission_classes=[permissions.IsAuthenticated,unfollowPermissions]
     def create(self, request, *args, **kwargs):
         obj=self.get_object()
-        unfollow(request,obj)
+        return unfollow(request,obj)

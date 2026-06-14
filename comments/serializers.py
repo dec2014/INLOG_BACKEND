@@ -11,7 +11,7 @@ class UserSerialization(serializers.ModelSerializer):
 
 
 class commentsSerialization(serializers.ModelSerializer):
-    owner=UserSerialization()
+    owner=UserSerialization(read_only=True)
     class Meta:
         model=Comments
         fields=['id','text','owner',"blog"]
