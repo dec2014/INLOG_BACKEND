@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 
 class Custom_middleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
+        print('hit middleware')
         query_string=scope['query_string'].decode()
         token=query_string.split('token=')[-1]
         try:
@@ -14,9 +15,11 @@ class Custom_middleware(BaseMiddleware):
             user_id=decoded_token['user_id']
             user=await self.get_user(user_id)
             scope['user']=user
+            print('user')
 
         except:
             scope['user']=AnonymousUser()
+            print('anonymous')
 
             
         return await super().__call__(scope, receive, send)
