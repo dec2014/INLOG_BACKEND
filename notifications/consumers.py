@@ -45,9 +45,23 @@ class organization(AsyncWebsocketConsumer):
             
 
     async def disconnect(self, code):
-        await self.channel_layer.group_discard(self.group_organization,self.channel_name)
-        await self.channel_layer.group_discard(self.notification_organization_group,self.channel_name)
-        await self.channel_layer.group_discard(self.group_user,self.channel_name)
+        if hasattr(self, "group_organization"):
+            await self.channel_layer.group_discard(
+                self.group_organization,
+                self.channel_name
+            )
+
+        if hasattr(self, "notification_organization_group"):
+            await self.channel_layer.group_discard(
+                self.notification_organization_group,
+                self.channel_name
+            )
+
+        if hasattr(self, "group_user"):
+            await self.channel_layer.group_discard(
+                self.group_user,
+                self.channel_name
+        )
     
 
     
