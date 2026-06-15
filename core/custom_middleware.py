@@ -3,7 +3,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from Users.models import employees
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import AnonymousUser
-
+from urllib.parse import parse_qs
 
 class Custom_middleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):

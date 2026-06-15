@@ -20,9 +20,10 @@ from notifications import routing
 from channels.auth import AuthMiddlewareStack
 from channels.routing import URLRouter,ProtocolTypeRouter
 from .custom_middleware import Custom_middleware
+from channels.security.websocket import AllowedHostsOriginValidator
 
 application=ProtocolTypeRouter({
     'http':app,
-    'websocket':Custom_middleware(URLRouter(routing.websocket_urlpatterns))
+    'websocket':AllowedHostsOriginValidator(Custom_middleware(URLRouter(routing.websocket_urlpatterns)))
 })
 
