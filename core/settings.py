@@ -180,7 +180,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True  # Secure the connection
 EMAIL_HOST_USER = 'v17188425@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-
+EMAIL_TIMEOUT = 10
 # Default 'from' address for send_mail
 DEFAULT_FROM_EMAIL = 'ADMIN <v17188425@gmail.com>'
 

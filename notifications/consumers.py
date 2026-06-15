@@ -17,23 +17,26 @@ class organization(AsyncWebsocketConsumer):
             if not self.user.is_authenticated:
                 await self.close()
                 return 
-            
-            self.group_user=f'user_{self.user.id}'
-            organization=await async_get_organization(self)
-            self.group_organization=f'organization_{organization.Name}'
-            self.notification_organization_group=f'notification_{organization.Name}'
-            self.user_followings=await async_user_following(self)
-            self.organization_followings= await async_organization_following(self)
-
-            self.followings=set(self.user_followings + self.organization_followings)
-            await self.channel_layer.group_add(self.group_organization,self.channel_name)
-            await self.channel_layer.group_add(self.notification_organization_group,self.channel_name)
-            await self.channel_layer.group_add(self.group_user,self.channel_name)
-            if self.followings:
-                for following in self.followings:
-                    notification=f'notification_{following}'
-                    await self.channel_layer.group_add(notification,self.channel_name)
             await self.accept()
+            try:
+                self.group_user=f'user_{self.user.id}'
+                organization=await async_get_organization(self)
+                self.group_organization=f'organization_{organization.Name}'
+                self.notification_organization_group=f'notification_{organization.Name}'
+                self.user_followings=await async_user_following(self)
+                self.organization_followings= await async_organization_following(self)
+
+                self.followings=set(self.user_followings + self.organization_followings)
+                await self.channel_layer.group_add(self.group_organization,self.channel_name)
+                await self.channel_layer.group_add(self.notification_organization_group,self.channel_name)
+                await self.channel_layer.group_add(self.group_user,self.channel_name)
+                if self.followings:
+                    for following in self.followings:
+                        notification=f'notification_{following}'
+                        await self.channel_layer.group_add(notification,self.channel_name)
+            except Exception:
+                await self.close()
+                
         
         except Exception as e:
             logger.exception('could not connect to websocket.')
