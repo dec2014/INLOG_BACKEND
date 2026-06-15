@@ -16,6 +16,9 @@ from tag.service import get_create_tag
 from follow.service import user_following_list_exists,organization_following_list_exists
 
 
+def get_all_blog():
+    return Blog.objects.all()
+
 def total_post_organization(id):
     return Blog.objects.filter(organization_id=id).count()
 

@@ -26,8 +26,8 @@ class BlogCreateSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
-    organization=OrganizatoinSerializers()
-    created_by=UserSerialization()
+    organization=OrganizatoinSerializers(read_only=True)
+    created_by=UserSerialization(read_only=True)
     class Meta:
         model=Blog
         fields=['id','content','pictures','title','tag','organization','created_by','created_at']
@@ -93,8 +93,8 @@ class BlogListSerializer(serializers.ModelSerializer):
     
     likes_count=serializers.IntegerField(read_only=True)
     comment_count=serializers.IntegerField(read_only=True)
-    organization=OrganizatoinSerializers()
-    created_by=UserSerialization()
+    organization=OrganizatoinSerializers(read_only=True)
+    created_by=UserSerialization(read_only=True)
     class Meta:
         model=Blog
         fields=['id','content','pictures','title','tag','organization','created_by','created_at','likes_count','comment_count']

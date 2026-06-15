@@ -10,10 +10,12 @@ from streak.service import create_streak
 from django.db import transaction,IntegrityError
 from rest_framework.exceptions import ValidationError
 from verification.service import EmailVerification
+from .models import employees
 
 
 # Create your views here.
 class CreateUser(generics.CreateAPIView):
+    queryset=get_all_employees()
     serializer_class=UserCreateSerializer
 
     @transaction.atomic
@@ -57,6 +59,7 @@ class employee_list(generics.ListAPIView):
 
 
 class Verification(generics.RetrieveAPIView):
+    queryset=get_all_employees()
     serializer_class=UserCreateSerializer
     def retrieve(self, request, *args, **kwargs):
         return verification_user(self, request, *args, **kwargs)
@@ -64,6 +67,7 @@ class Verification(generics.RetrieveAPIView):
 
 
 class EmployeeTemperary(generics.CreateAPIView):
+    queryset=get_all_employees()
     serializer_class=UserCreateEmployeeSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]
@@ -89,7 +93,7 @@ class force_password_reset(generics.UpdateAPIView):
 
 
 class changePasswordByFounder(generics.UpdateAPIView):
-
+    queryset=get_all_employees()
     serializer_class=changePasswordSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[permissions.IsAuthenticated,Founder_Set_Up]

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
-from BLOG.service import get_blog__organization_all,blog_pinned_by_organization,blog_pinned_by_user
+from BLOG.service import get_blog__organization_all,blog_pinned_by_organization,blog_pinned_by_user,get_all_blog
 from BLOG.permissions import Blog_access_permission
 from .service import pin_blog
 from BLOG.serializers import BlogSerializer
@@ -12,6 +12,7 @@ from rest_framework.exceptions import ValidationError
 # Create your views here.
 
 class Pin_unpin_blog(generics.CreateAPIView):
+
     authentication_classes=[JWTAuthentication]
     lookup_field='pk'
     permission_classes=[IsAuthenticated,employee_verification,Blog_access_permission]
@@ -28,6 +29,7 @@ class Pin_unpin_blog(generics.CreateAPIView):
 
 
 class pinned_blog_by_user(generics.ListAPIView):
+
     serializer_class=BlogSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated]
@@ -37,6 +39,7 @@ class pinned_blog_by_user(generics.ListAPIView):
 
 
 class pinned_blog_by_organization(generics.ListAPIView):
+
     serializer_class=BlogSerializer
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated]
