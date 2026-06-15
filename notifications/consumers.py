@@ -13,7 +13,9 @@ class organization(AsyncWebsocketConsumer):
     async def connect(self):
         try:
             print('connected')
+            
             self.user=self.scope['user']
+            print(self.user)
             if not self.user.is_authenticated:
                 await self.close()
                 return 

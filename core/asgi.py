@@ -23,6 +23,6 @@ from .custom_middleware import Custom_middleware
 
 application=ProtocolTypeRouter({
     'http':app,
-    'websocket':Custom_middleware(AuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns)))
+    'websocket':Custom_middleware(URLRouter(routing.websocket_urlpatterns))
 })
 
