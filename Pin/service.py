@@ -10,13 +10,14 @@ def blog_pin_create_update(blog,user):
     if user.role=='F':
         obj_pin,created=PinBlog.objects.update_or_create(
             blog=blog,
-            pin_by=user,
-            founder_pin=True
+            pin_by=user
         )
         if not created:
             obj_pin.pin= not obj_pin.pin
             obj_pin.founder_pin=not obj_pin.founder_pin
             obj_pin.save()
+        else:
+            obj_pin.founder_pin=True
     else:
         obj_pin,created=PinBlog.objects.update_or_create(
             blog=blog,
