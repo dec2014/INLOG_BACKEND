@@ -18,6 +18,7 @@ def blog_pin_create_update(blog,user):
             obj_pin.save()
         else:
             obj_pin.founder_pin=True
+            obj_pin.save()
     else:
         obj_pin,created=PinBlog.objects.update_or_create(
             blog=blog,
