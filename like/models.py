@@ -1,6 +1,8 @@
 from django.db import models
 from BLOG.models import Blog
 # Create your models here.
+
+
 class BlogLike(models.Model):
     blog=models.ForeignKey(Blog,on_delete=models.CASCADE,related_name='blog_like')
     like=models.BooleanField(default=True)

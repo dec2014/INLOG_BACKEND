@@ -3,6 +3,8 @@ from organization.models import Organization
 from django.db.models import Q,F
 
 # Create your models here.
+
+
 class OrganizationFollower(models.Model):
     organization=models.ForeignKey(Organization,on_delete=models.CASCADE,related_name='organization_follower')
     follower=models.ForeignKey(Organization,on_delete=models.CASCADE,null=True)

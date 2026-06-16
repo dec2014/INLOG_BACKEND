@@ -14,3 +14,5 @@ python-dotenv==1.2.1
 dj-database-url
 psycopg2-binary
 django-cors-headers
+drf-spectacular
+pyyaml

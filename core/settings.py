@@ -55,18 +55,30 @@ INSTALLED_APPS = [
     'Analytics',
     'like',
     'Pin',
-    'search'
+    'search',
+    'drf_spectacular'
 
 ]
 
 
 REST_FRAMEWORK = {
 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
+
+        
 
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Inlog Backend API',
+    'DESCRIPTION': 'Real-time organization notifications and blog engine infrastructure',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 CHANNEL_LAYERS={
