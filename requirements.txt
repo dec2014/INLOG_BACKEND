@@ -17,3 +17,4 @@ django-cors-headers
 drf-spectacular
 pyyaml
 mailtrap
+silk
