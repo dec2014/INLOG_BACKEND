@@ -15,7 +15,7 @@ def EmailVerification(request,email,user):
     )
         subject='verification mail'
         body=f'your link is {link}'
-        email_from=settings.EMAIL_HOST_USER
+        email_from=settings.DEFAULT_FROM_EMAIL
         reciptent_list=[email]
     
         send_mail(subject,body,email_from,reciptent_list)
@@ -29,7 +29,7 @@ def TempEmployeeCredentials(email,password):
     try:
         subject='Login credentials'
         body=f'your credentials are email:{email},password:{password}'
-        email_from=settings.EMAIL_HOST_USER
+        email_from=settings.DEFAULT_FROM_EMAIL
         reciptent_list=[email]
     
         send_mail(subject,body,email_from,reciptent_list)

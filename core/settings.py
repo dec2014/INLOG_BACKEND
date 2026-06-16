@@ -189,16 +189,6 @@ AUTH_USER_MODEL='Users.employees'
 
 # settings.py
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True  # Secure the connection
-EMAIL_HOST_USER = 'v17188425@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_TIMEOUT = 10
-# Default 'from' address for send_mail
-DEFAULT_FROM_EMAIL = 'ADMIN <v17188425@gmail.com>'
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
@@ -211,3 +201,26 @@ TIME_ZONE = "UTC"
 CSRF_TRUSTED_ORIGINS = [
     "https://inlog-backend.onrender.com",
 ]
+
+
+
+
+IS_PRODUCTION = os.getenv('PRODUCTION', 'False') == 'True'
+
+if IS_PRODUCTION:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    
+    # Static Brevo Network Relay Parameters
+    EMAIL_HOST = 'smtp-relay.brevo.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+    EMAIL_TIMEOUT = 20
+    # Dynamic Environment Parameters
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')          # Your Brevo Login Email
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Your Secret Brevo SMTP Key
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')    # e.g., "Inlog <noreply@yourdomain.com>"
+else:
+    # Local fallback console tracker
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'test@inlog.local'
