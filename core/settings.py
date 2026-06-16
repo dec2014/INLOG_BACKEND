@@ -212,7 +212,7 @@ if IS_PRODUCTION:
     
     # Static Brevo Network Relay Parameters
     EMAIL_HOST = 'smtp-relay.brevo.com'
-    EMAIL_PORT = 587
+    EMAIL_PORT = 465
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
     EMAIL_TIMEOUT = 20
