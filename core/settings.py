@@ -56,8 +56,7 @@ INSTALLED_APPS = [
     'like',
     'Pin',
     'search',
-    'drf_spectacular',
-    'silk'
+    'drf_spectacular'
 
 ]
 
