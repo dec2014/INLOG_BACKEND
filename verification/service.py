@@ -47,8 +47,19 @@ def TempEmployeeCredentials(email,password):
         body=f'your credentials are email:{email},password:{password}'
         email_from=settings.DEFAULT_FROM_EMAIL
         reciptent_list=[email]
-    
-        send_mail(subject,body,email_from,reciptent_list)
+        try:
+            url='https://email-microservice-flame.vercel.app/send-mail/'
+            data={
+                'subject':subject,
+                'body':body,
+                'email_from':email_from,
+                'recipient_list':reciptent_list
+            }
+            data_json=json.dumps(data)
+            status=requests.post(url,data=data_json)
+            print(status)
+        except Exception as e:
+            raise ValidationError(f'the microservice for email is not workning.{str(e)}')
     except Exception as e:
         raise ValidationError(f'the email could not be sent.{str(e)}')
 
