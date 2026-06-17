@@ -9,8 +9,7 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework.exceptions import ValidationError
 
 
-MAILTRAP_TOKEN = os.getenv('MAILTRAP_API_KEY')
-IS_PRODUCTION = os.getenv('PRODUCTION', 'False') == 'True'
+
 def EmailVerification(request,email,user):
     try:
         uuid=urlsafe_base64_encode(force_bytes(user.pk))
