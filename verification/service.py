@@ -48,7 +48,7 @@ def TempEmployeeCredentials(email,password):
         email_from=settings.DEFAULT_FROM_EMAIL
         reciptent_list=[email]
         try:
-            url='https://email-microservice-flame.vercel.app/send-mail/'
+            url='https://email-microservice-flame.vercel.app/mail-employee-details/'
             data={
                 'subject':subject,
                 'body':body,
