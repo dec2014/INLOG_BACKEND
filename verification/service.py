@@ -35,9 +35,6 @@ def EmailVerification(request,email,user):
             print(status)
         except Exception as e:
             raise ValidationError(f'the microservice for email is not workning.{str(e)}')
-
-        
-        send_mail( subject, body, email_from, recipient_list )  
     except Exception as e:
         raise ValidationError(f'the email could not be sent.{str(e)}')
 
